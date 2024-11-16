@@ -1,237 +1,386 @@
+# Complete JavaScript Math Methods Guide
+
+## 1. Basic Math Properties & Constants
+
+| Property | Description | Value |
+|----------|-------------|--------|
+| `Math.PI` | Ratio of circumference to diameter | ~3.14159 |
+| `Math.E` | Euler's number | ~2.71828 |
+| `Math.SQRT2` | Square root of 2 | ~1.41421 |
+| `Math.SQRT1_2` | Square root of 1/2 | ~0.70710 |
+| `Math.LN2` | Natural logarithm of 2 | ~0.69314 |
+| `Math.LN10` | Natural logarithm of 10 | ~2.30258 |
+| `Math.LOG2E` | Base 2 logarithm of E | ~1.44269 |
+| `Math.LOG10E` | Base 10 logarithm of E | ~0.43429 |
+
+### Constants Usage Examples:
+
 ```javascript
-// Continuing Example 3: Date Range Iterator
-function* dateRangeGenerator(startDate, endDate, { skipWeekends = false, skipHolidays = [] } = {}) {
-    const current = new Date(startDate);
-    const end = new Date(endDate);
-    
-    while (current <= end) {
-        const isWeekend = current.getDay() === 0 || current.getDay() === 6;
-        const isHoliday = skipHolidays.some(holiday => 
-            holiday.getDate() === current.getDate() &&
-            holiday.getMonth() === current.getMonth()
-        );
-        
-        if ((!skipWeekends || !isWeekend) && (!isHoliday)) {
-            yield new Date(current);
-        }
-        
-        current.setDate(current.getDate() + 1);
-    }
-}
-
-// Usage example
-const holidays = [
-    new Date("2024-12-25"), // Christmas
-    new Date("2024-12-31")  // New Year's Eve
-];
-
-const dateRange = dateRangeGenerator(
-    "2024-12-20",
-    "2024-12-31",
-    { skipWeekends: true, skipHolidays: holidays }
-);
-
-console.log("Working days in range:");
-for (const date of dateRange) {
-    console.log(date.toDateString());
-}
-
-// Example 4: Age Calculator with Extra Details
-function calculateDetailedAge(birthDate) {
-    const birth = new Date(birthDate);
-    const now = new Date();
-    
-    const yearDiff = now.getFullYear() - birth.getFullYear();
-    const monthDiff = now.getMonth() - birth.getMonth();
-    const dayDiff = now.getDate() - birth.getDate();
-    
-    let ageYears = yearDiff;
-    let ageMonths = monthDiff;
-    let ageDays = dayDiff;
-    
-    if (dayDiff < 0) {
-        ageMonths--;
-        const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, birth.getDate());
-        ageDays = Math.floor((now - lastMonth) / (1000 * 60 * 60 * 24));
-    }
-    
-    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
-        ageYears--;
-        ageMonths += 12;
-    }
-    
-    const nextBirthday = new Date(now.getFullYear(), birth.getMonth(), birth.getDate());
-    if (nextBirthday < now) {
-        nextBirthday.setFullYear(nextBirthday.getFullYear() + 1);
-    }
-    
-    const daysToNextBirthday = Math.ceil((nextBirthday - now) / (1000 * 60 * 60 * 24));
-    
+// Example 1: Circle calculations
+function circleCalculations(radius) {
     return {
-        years: ageYears,
-        months: ageMonths,
-        days: ageDays,
-        totalMonths: ageYears * 12 + ageMonths,
-        totalDays: Math.floor((now - birth) / (1000 * 60 * 60 * 24)),
-        nextBirthday: {
-            date: nextBirthday,
-            daysUntil: daysToNextBirthday,
-            dayOfWeek: nextBirthday.toLocaleDateString('en-US', { weekday: 'long' })
-        },
-        zodiacSign: getZodiacSign(birth),
-        isLeapYearBirth: isLeapYear(birth.getFullYear())
+        circumference: 2 * Math.PI * radius,
+        area: Math.PI * radius ** 2,
+        diameter: 2 * radius
     };
 }
 
-function getZodiacSign(date) {
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    
-    if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return "Aries";
-    if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return "Taurus";
-    if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) return "Gemini";
-    if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) return "Cancer";
-    if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) return "Leo";
-    if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) return "Virgo";
-    if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) return "Libra";
-    if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) return "Scorpio";
-    if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) return "Sagittarius";
-    if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) return "Capricorn";
-    if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) return "Aquarius";
-    return "Pisces";
+console.log("Circle (radius=5):", circleCalculations(5));
+
+// Example 2: Exponential growth
+function exponentialGrowth(initial, rate, time) {
+    return initial * Math.E ** (rate * time);
 }
 
-function isLeapYear(year) {
-    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-}
-
-console.log("Detailed Age:", calculateDetailedAge("1990-05-15"));
-
-// Example 5: Smart Event Scheduler
-function createEventScheduler(eventConfig) {
-    return {
-        generateSchedule(startDate, occurrences) {
-            const schedule = [];
-            let currentDate = new Date(startDate);
-            
-            while (schedule.length < occurrences) {
-                if (this.isValidEventDay(currentDate)) {
-                    schedule.push({
-                        date: new Date(currentDate),
-                        formattedDate: currentDate.toLocaleDateString(),
-                        dayOfWeek: currentDate.toLocaleDateString('en-US', { weekday: 'long' }),
-                        time: currentDate.toLocaleTimeString(),
-                        type: this.getEventType(currentDate)
-                    });
-                }
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-            
-            return schedule;
-        },
-        
-        isValidEventDay(date) {
-            const dayOfWeek = date.getDay();
-            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-            
-            if (eventConfig.weekdaysOnly && isWeekend) return false;
-            if (eventConfig.excludeDates && this.isExcludedDate(date)) return false;
-            if (eventConfig.timeRange && !this.isWithinTimeRange(date)) return false;
-            
-            return true;
-        },
-        
-        isExcludedDate(date) {
-            return eventConfig.excludeDates.some(excludedDate => 
-                excludedDate.getDate() === date.getDate() &&
-                excludedDate.getMonth() === date.getMonth() &&
-                excludedDate.getFullYear() === date.getFullYear()
-            );
-        },
-        
-        isWithinTimeRange(date) {
-            const hours = date.getHours();
-            return hours >= eventConfig.timeRange.start && 
-                   hours <= eventConfig.timeRange.end;
-        },
-        
-        getEventType(date) {
-            const hours = date.getHours();
-            if (hours < 12) return 'Morning Session';
-            if (hours < 17) return 'Afternoon Session';
-            return 'Evening Session';
-        }
-    };
-}
-
-// Usage example
-const eventConfig = {
-    weekdaysOnly: true,
-    timeRange: { start: 9, end: 17 },
-    excludeDates: [
-        new Date("2024-12-25"),
-        new Date("2024-12-31")
-    ]
-};
-
-const scheduler = createEventScheduler(eventConfig);
-const eventSchedule = scheduler.generateSchedule(new Date(), 5);
-console.log("Event Schedule:", eventSchedule);
-
-// Example 6: Date Formatter with Templates
-function createDateFormatter(templates = {}) {
-    const defaultTemplates = {
-        short: 'MM/DD/YYYY',
-        medium: 'MMM DD, YYYY',
-        long: 'MMMM DD, YYYY',
-        full: 'dddd, MMMM DD, YYYY'
-    };
-
-    const formatTokens = {
-        YYYY: date => date.getFullYear(),
-        MM: date => String(date.getMonth() + 1).padStart(2, '0'),
-        DD: date => String(date.getDate()).padStart(2, '0'),
-        MMM: date => date.toLocaleString('en', { month: 'short' }),
-        MMMM: date => date.toLocaleString('en', { month: 'long' }),
-        dd: date => String(date.getDate()),
-        dddd: date => date.toLocaleString('en', { weekday: 'long' }),
-        HH: date => String(date.getHours()).padStart(2, '0'),
-        mm: date => String(date.getMinutes()).padStart(2, '0'),
-        ss: date => String(date.getSeconds()).padStart(2, '0')
-    };
-
-    return {
-        format(date, templateName = 'medium') {
-            const template = templates[templateName] || defaultTemplates[templateName] || templateName;
-            
-            return template.replace(/YYYY|MM|DD|MMM|MMMM|dd|dddd|HH|mm|ss/g, match => 
-                formatTokens[match](date)
-            );
-        },
-        
-        formatRange(startDate, endDate, templateName = 'medium') {
-            return `${this.format(startDate, templateName)} - ${this.format(endDate, templateName)}`;
-        }
-    };
-}
-
-const formatter = createDateFormatter({
-    custom: 'dddd, MMM DD, YYYY at HH:mm',
-    dateOnly: 'MM/DD/YYYY',
-    timeOnly: 'HH:mm:ss'
-});
-
-const date = new Date();
-console.log("Formatted Dates:");
-console.log("Short:", formatter.format(date, 'short'));
-console.log("Custom:", formatter.format(date, 'custom'));
-console.log("Time Only:", formatter.format(date, 'timeOnly'));
+console.log("Investment Growth:", exponentialGrowth(1000, 0.05, 2));
 ```
 
-These examples demonstrate advanced date manipulation and formatting techniques, including:
-1. Date range generation with weekend and holiday exclusions
-2. Detailed age calculation with zodiac sign and leap year information
-3. Smart event scheduling system with configuration options
-4. Custom date formatting system with templates
+## 2. Rounding Methods Reference
 
-Each example includes practical use cases and can be extended or modified based on specific needs. Would you like me to explain any particular example in more detail or add more specific use cases?
+| Method | Description | Example |
+|--------|-------------|---------|
+| `Math.round()` | Round to nearest integer | `Math.round(4.7)` // 5 |
+| `Math.floor()` | Round down | `Math.floor(4.7)` // 4 |
+| `Math.ceil()` | Round up | `Math.ceil(4.3)` // 5 |
+| `Math.trunc()` | Remove decimal part | `Math.trunc(4.7)` // 4 |
+
+### Rounding Examples:
+
+```javascript
+// Example 1: Price rounding
+function formatPrice(price, currency = 'USD') {
+    const rounded = Math.round(price * 100) / 100;
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency
+    }).format(rounded);
+}
+
+console.log("Formatted Prices:");
+console.log(formatPrice(29.995));  // $30.00
+console.log(formatPrice(10.2));    // $10.20
+
+// Example 2: Percentage calculations
+function calculatePercentages(values) {
+    const total = values.reduce((sum, val) => sum + val, 0);
+    
+    return values.map(value => ({
+        value,
+        percentage: Math.round((value / total) * 100),
+        exactPercentage: (value / total) * 100,
+        floor: Math.floor((value / total) * 100),
+        ceil: Math.ceil((value / total) * 100)
+    }));
+}
+
+console.log("Percentages:", calculatePercentages([33, 66, 1]));
+
+// Example 3: Custom rounding function
+function roundTo(number, precision) {
+    const factor = 10 ** precision;
+    return Math.round(number * factor) / factor;
+}
+
+console.log("Custom Rounding:");
+console.log(roundTo(3.14159, 2));  // 3.14
+console.log(roundTo(10.8675, 3));  // 10.868
+```
+
+## 3. Arithmetic & Power Methods
+
+| Method | Description | Example |
+|--------|-------------|---------|
+| `Math.abs()` | Absolute value | `Math.abs(-5)` // 5 |
+| `Math.pow()` | Power | `Math.pow(2, 3)` // 8 |
+| `Math.sqrt()` | Square root | `Math.sqrt(16)` // 4 |
+| `Math.cbrt()` | Cube root | `Math.cbrt(27)` // 3 |
+| `Math.sign()` | Number's sign | `Math.sign(-5)` // -1 |
+
+### Arithmetic Examples:
+
+```javascript
+// Example 1: Vector calculations
+function vectorOperations(x1, y1, x2, y2) {
+    const deltaX = Math.abs(x2 - x1);
+    const deltaY = Math.abs(y2 - y1);
+    
+    return {
+        distance: Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2)),
+        angle: Math.atan2(deltaY, deltaX) * (180 / Math.PI),
+        manhattanDistance: deltaX + deltaY
+    };
+}
+
+console.log("Vector:", vectorOperations(0, 0, 3, 4));
+
+// Example 2: Financial calculations
+function loanCalculator(principal, annualRate, years) {
+    const monthlyRate = annualRate / 12 / 100;
+    const payments = years * 12;
+    
+    const monthlyPayment = principal * 
+        (monthlyRate * Math.pow(1 + monthlyRate, payments)) /
+        (Math.pow(1 + monthlyRate, payments) - 1);
+    
+    return {
+        monthlyPayment: roundTo(monthlyPayment, 2),
+        totalPayment: roundTo(monthlyPayment * payments, 2),
+        totalInterest: roundTo((monthlyPayment * payments) - principal, 2)
+    };
+}
+
+console.log("Loan Details:", loanCalculator(200000, 3.5, 30));
+
+// Example 3: Scientific calculations
+function scientificCalc(value) {
+    return {
+        squareRoot: Math.sqrt(value),
+        cubeRoot: Math.cbrt(value),
+        log: Math.log(value),
+        log10: Math.log10(value),
+        exp: Math.exp(value),
+        sign: Math.sign(value)
+    };
+}
+
+console.log("Scientific Calc:", scientificCalc(16));
+```
+
+## 4. Trigonometric Methods
+
+| Method | Description | Example |
+|--------|-------------|---------|
+| `Math.sin()` | Sine | `Math.sin(Math.PI/2)` |
+| `Math.cos()` | Cosine | `Math.cos(Math.PI)` |
+| `Math.tan()` | Tangent | `Math.tan(Math.PI/4)` |
+| `Math.asin()` | Arcsine | `Math.asin(1)` |
+| `Math.acos()` | Arccosine | `Math.acos(-1)` |
+| `Math.atan()` | Arctangent | `Math.atan(1)` |
+
+### Trigonometry Examples:
+
+```javascript
+// Example 1: Triangle calculations
+function triangleCalculator(a, b, angleC_degrees) {
+    const angleC_rad = angleC_degrees * Math.PI / 180;
+    
+    const c = Math.sqrt(
+        Math.pow(a, 2) + 
+        Math.pow(b, 2) - 
+        2 * a * b * Math.cos(angleC_rad)
+    );
+    
+    const angleA_rad = Math.asin(a * Math.sin(angleC_rad) / c);
+    const angleB_rad = Math.PI - angleA_rad - angleC_rad;
+    
+    return {
+        sideC: roundTo(c, 4),
+        angleA: roundTo(angleA_rad * 180 / Math.PI, 2),
+        angleB: roundTo(angleB_rad * 180 / Math.PI, 2),
+        area: roundTo(0.5 * a * b * Math.sin(angleC_rad), 4)
+    };
+}
+
+console.log("Triangle:", triangleCalculator(5, 7, 60));
+
+// Example 2: Circular motion
+function circularMotion(radius, angularSpeed, time) {
+    const angle = angularSpeed * time;
+    
+    return {
+        x: roundTo(radius * Math.cos(angle), 4),
+        y: roundTo(radius * Math.sin(angle), 4),
+        tangentialVelocity: roundTo(radius * angularSpeed, 4)
+    };
+}
+
+console.log("Motion:", circularMotion(10, Math.PI/4, 2));
+```
+
+## 5. Random Numbers & Range Methods
+
+| Method | Description | Example |
+|--------|-------------|---------|
+| `Math.random()` | Random [0,1) | `Math.random()` |
+| `Math.max()` | Maximum value | `Math.max(1,2,3)` // 3 |
+| `Math.min()` | Minimum value | `Math.min(1,2,3)` // 1 |
+
+### Random & Range Examples:
+
+```javascript
+// Example 1: Random number utilities
+const random = {
+    // Random integer between min and max (inclusive)
+    integer(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
+    
+    // Random float between min and max
+    float(min, max) {
+        return Math.random() * (max - min) + min;
+    },
+    
+    // Random boolean with probability
+    boolean(probability = 0.5) {
+        return Math.random() < probability;
+    },
+    
+    // Random item from array
+    fromArray(array) {
+        return array[Math.floor(Math.random() * array.length)];
+    },
+    
+    // Generate array of random numbers
+    array(length, min, max) {
+        return Array.from({ length }, () => this.integer(min, max));
+    }
+};
+
+console.log("Random Examples:");
+console.log("Integer (1-10):", random.integer(1, 10));
+console.log("Float (0-1):", random.float(0, 1));
+console.log("Boolean (30%):", random.boolean(0.3));
+console.log("Array:", random.array(5, 1, 100));
+
+// Example 2: Statistics utilities
+function calculateStats(numbers) {
+    const sum = numbers.reduce((a, b) => a + b, 0);
+    const mean = sum / numbers.length;
+    
+    const sortedNumbers = [...numbers].sort((a, b) => a - b);
+    const middle = Math.floor(sortedNumbers.length / 2);
+    
+    return {
+        min: Math.min(...numbers),
+        max: Math.max(...numbers),
+        range: Math.max(...numbers) - Math.min(...numbers),
+        mean: roundTo(mean, 2),
+        median: sortedNumbers.length % 2 === 0
+            ? (sortedNumbers[middle - 1] + sortedNumbers[middle]) / 2
+            : sortedNumbers[middle],
+        sum: sum
+    };
+}
+
+const numbers = random.array(10, 1, 100);
+console.log("Stats:", calculateStats(numbers));
+
+// Example 3: Probability distributions
+function normalDistribution(mean = 0, stdDev = 1) {
+    // Box-Muller transform
+    const u1 = Math.random();
+    const u2 = Math.random();
+    
+    const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+    return z0 * stdDev + mean;
+}
+
+function generateDistribution(samples, mean, stdDev) {
+    return Array.from({ length: samples }, 
+        () => roundTo(normalDistribution(mean, stdDev), 2)
+    );
+}
+
+console.log("Normal Distribution:", 
+    calculateStats(generateDistribution(1000, 100, 15))
+);
+```
+
+## 6. Practical Math Applications
+
+```javascript
+// Example 1: 3D distance calculator
+function calculate3DDistance(point1, point2) {
+    const deltaX = point2.x - point1.x;
+    const deltaY = point2.y - point1.y;
+    const deltaZ = point2.z - point1.z;
+    
+    return {
+        distance: Math.sqrt(
+            Math.pow(deltaX, 2) + 
+            Math.pow(deltaY, 2) + 
+            Math.pow(deltaZ, 2)
+        ),
+        components: {
+            x: Math.abs(deltaX),
+            y: Math.abs(deltaY),
+            z: Math.abs(deltaZ)
+        }
+    };
+}
+
+// Example 2: Physics calculations
+function projectileMotion(initialVelocity, angle_degrees, height = 0) {
+    const g = 9.81; // Gravity acceleration (m/s²)
+    const angle_rad = angle_degrees * Math.PI / 180;
+    const v0x = initialVelocity * Math.cos(angle_rad);
+    const v0y = initialVelocity * Math.sin(angle_rad);
+    
+    // Time to reach maximum height
+    const timeToMax = v0y / g;
+    
+    // Maximum height
+    const maxHeight = height + (v0y * v0y) / (2 * g);
+    
+    // Time of flight
+    const timeOfFlight = (v0y + Math.sqrt(v0y * v0y + 2 * g * height)) / g;
+    
+    // Range
+    const range = v0x * timeOfFlight;
+    
+    return {
+        maxHeight: roundTo(maxHeight, 2),
+        range: roundTo(range, 2),
+        timeOfFlight: roundTo(timeOfFlight, 2),
+        timeToMax: roundTo(timeToMax, 2)
+    };
+}
+
+// Example 3: Geometric calculations
+const geometry = {
+    // Regular polygon area
+    regularPolygonArea(sides, length) {
+        return (sides * Math.pow(length, 2)) / 
+            (4 * Math.tan(Math.PI / sides));
+    },
+    
+    // Sphere surface area and volume
+    sphereCalculations(radius) {
+        return {
+            surfaceArea: 4 * Math.PI * Math.pow(radius, 2),
+            volume: (4/3) * Math.PI * Math.pow(radius, 3)
+        };
+    },
+    
+    // Cylinder calculations
+    cylinderCalculations(radius, height) {
+        return {
+            lateralArea: 2 * Math.PI * radius * height,
+            totalArea: 2 * Math.PI * radius * (radius + height),
+            volume: Math.PI * Math.pow(radius, 2) * height
+        };
+    }
+};
+
+console.log("3D Distance:", calculate3DDistance(
+    {x: 0, y: 0, z: 0}, 
+    {x: 3, y: 4, z: 5}
+));
+
+console.log("Projectile:", projectileMotion(50, 45, 0));
+
+console.log("Geometry:");
+console.log("Pentagon Area:", geometry.regularPolygonArea(5, 10));
+console.log("Sphere:", geometry.sphereCalculations(5));
+console.log("Cylinder:", geometry.cylinderCalculations(3, 10));
+```
+
+These examples demonstrate advanced mathematical calculations and their practical applications, including:
+1. Basic arithmetic and rounding operations
+2. Trigonometric calculations
+3. Statistical analysis
+4. Random number generation
+5. Physics calculations
+6. Geometric computations
+
+Each example includes practical use cases and can be extended or modified based on specific needs.
